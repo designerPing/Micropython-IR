@@ -4,21 +4,20 @@ from pyb import Pin
 import time
 import micropython
 
-L1 = Pin("PC1", Pin.IN, Pin.PULL_UP)
-L2 = Pin("PA5", mode=Pin.AF_PP, af=Pin.AF1_TIM2)
-# print(L2.af_list())
 
 
-def send_id(out):
+def send_id(out_signal ,pin_name):
+
+	L2 = Pin(pin_name, mode=Pin.AF_PP, af=Pin.AF1_TIM2)
 	timer = pyb.Timer(2,freq = 38000)
 
 	ch = timer.channel(1, pyb.Timer.PWM, pin =L2, pulse_width_percent = 0.5)
 	pyb.udelay(9000)
+	
 	ch = timer.channel(1, pyb.Timer.PWM, pin =L2, pulse_width_percent = 0)
 	pyb.udelay(4500)
-	# print("1")
 
-	for i in out:
+	for i in out_signal:
 		if i == "0":
 			ch = timer.channel(1, pyb.Timer.PWM, pin =L2, pulse_width_percent = 0.5)
 			pyb.udelay(560)
@@ -36,14 +35,15 @@ def send_id(out):
 		ch = timer.channel(1, pyb.Timer.PWM, pin =L2, pulse_width_percent = 0)
 			
 
-# send_id("11001101001100100111001110001100")
+# send_id("11001101001100100111001110001100",'PA5')
 
 
 
 
+def read_id(pin_name):
 
+	L1 = Pin(pin_name, Pin.IN, Pin.PULL_UP)
 
-def read_id():
 	a = []
 
 	while L1.value() == 1:
@@ -104,6 +104,8 @@ def read_id():
 	if Data_buttom in Buttom_dict.keys():
 		# print (Data_buttom)
 		print(Buttom_dict[Data_buttom])
+	return B1
 
-# while True:
-# 	read_id()
+while True:
+	f = read_id("PC1")
+	send_id(f)
